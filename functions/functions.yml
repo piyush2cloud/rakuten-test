@@ -1,0 +1,70 @@
+functions:
+  videoUploader:
+    handler: functions/videoUploader.handler
+    description: 'Video Uploader Function'
+    events:
+      - http:
+          path: /upload_input_content
+          method: post
+          cors: true
+          private: true
+    memorySize: 256
+    timeout: 30
+    environment:
+      STAGE_LEVEL: ${self:custom.stage}
+      BUCKET_NAME: ${file(./env.yml):${self:custom.stage}.BUCKET_NAME}
+      SQS_NAME: ${file(./env.yml):${self:custom.stage}.SIMPLE_QUEUE_SERVICE_NAME}
+      DYNAMO_TABLE_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_NAME}
+  
+  videoPackaging:
+    handler: functions/videoPackaging.handler
+    description: 'Video Encoder'
+    events:
+      - http:
+          path: /packaged_content
+          method: post
+          cors: true
+          private: true
+    memorySize: 256
+    timeout: 30
+    environment:
+      STAGE_LEVEL: ${self:custom.stage}
+      BUCKET_NAME: ${file(./env.yml):${self:custom.stage}.BUCKET_NAME}
+      SQS_NAME: ${file(./env.yml):${self:custom.stage}.SIMPLE_QUEUE_SERVICE_NAME}
+      DYNAMO_TABLE_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_NAME}
+      DYNAMO_TABLE_ENCODER_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_ENCODER_NAME}
+     
+  getVideoData:
+    handler: functions/getVideoData.handler
+    description: 'Get Video Data'
+    events:
+      - http:
+          path: /packaged_content/{videoId}
+          method: get
+          cors: true
+          private: true
+    memorySize: 256
+    timeout: 30
+    environment:
+      STAGE_LEVEL: ${self:custom.stage}
+      BUCKET_NAME: ${file(./env.yml):${self:custom.stage}.BUCKET_NAME}
+      SQS_NAME: ${file(./env.yml):${self:custom.stage}.SIMPLE_QUEUE_SERVICE_NAME}
+      DYNAMO_TABLE_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_NAME}
+      DYNAMO_TABLE__ENCODER_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_ENCODER_NAME}
+  
+  videoEncodeTrigger:
+    handler: functions/videoEncodeTrigger.handler
+    description: 'Trigger From EC2 Job Completion to update Video Status'
+    events:
+      - http:
+          path: /video_encode_status
+          method: post
+          cors: true
+    memorySize: 256
+    timeout: 30
+    environment:
+      STAGE_LEVEL: ${self:custom.stage}
+      BUCKET_NAME: ${file(./env.yml):${self:custom.stage}.BUCKET_NAME}
+      SQS_NAME: ${file(./env.yml):${self:custom.stage}.SIMPLE_QUEUE_SERVICE_NAME}
+      DYNAMO_TABLE_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_NAME}
+      DYNAMO_TABLE_ENCODER_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_ENCODER_NAME}
