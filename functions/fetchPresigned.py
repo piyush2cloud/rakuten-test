@@ -1,13 +1,11 @@
+from database import videoHelper
+from response import responseBuilder
 import json
 import boto3
 import os
-import sys
 import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-sys.path.append(os.path.abspath('..'))
-import videoHelper
-import responseBuilder
 
 def handler(event, context):
     try:

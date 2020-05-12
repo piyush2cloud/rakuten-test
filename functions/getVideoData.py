@@ -3,7 +3,6 @@ from response import responseBuilder
 import json
 import os
 
-
 def handler(event, context):
     try:
         # getting packageId and returning video information from it:
