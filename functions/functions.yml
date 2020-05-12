@@ -50,7 +50,7 @@ functions:
       BUCKET_NAME: ${file(./env.yml):${self:custom.stage}.BUCKET_NAME}
       SQS_NAME: ${file(./env.yml):${self:custom.stage}.SIMPLE_QUEUE_SERVICE_NAME}
       DYNAMO_TABLE_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_NAME}
-      DYNAMO_TABLE__ENCODER_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_ENCODER_NAME}
+      DYNAMO_TABLE_ENCODER_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_ENCODER_NAME}
   
   videoEncodeTrigger:
     handler: functions/videoEncodeTrigger.handler
@@ -59,6 +59,23 @@ functions:
       - http:
           path: /video_encode_status
           method: post
+          cors: true
+    memorySize: 256
+    timeout: 30
+    environment:
+      STAGE_LEVEL: ${self:custom.stage}
+      BUCKET_NAME: ${file(./env.yml):${self:custom.stage}.BUCKET_NAME}
+      SQS_NAME: ${file(./env.yml):${self:custom.stage}.SIMPLE_QUEUE_SERVICE_NAME}
+      DYNAMO_TABLE_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_NAME}
+      DYNAMO_TABLE_ENCODER_NAME: ${file(./env.yml):${self:custom.stage}.DYNAMO_TABLE_ENCODER_NAME}
+  
+  fetchPresigned:
+    handler: functions/fetchPresigned.handler
+    description: 'Presigned Url For Upload'
+    events:
+      - http:
+          path: /fetchPresignedUrl
+          method: get
           cors: true
     memorySize: 256
     timeout: 30

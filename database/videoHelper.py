@@ -27,21 +27,23 @@ def readVideoData(keyName, keyValue, tableName):
             keyName : keyValue,
         }
     )
-    print(response['Item'])
+    print(response)
     return response['Item']
 
 # Updating Video Status Data into Dynamo DB
-def updateMediaPackagingData(packageId, videoStatus, dashUri):
+def updateMediaPackagingData(packageId, videoStatus, dashUri, keyVal, kidVal):
     dbClient = boto3.resource('dynamodb')
     table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
     response = table.update_item(
         Key={
             'packageId': packageId
         },
-        UpdateExpression="set videoStatus = :r, dashUrl=:d",
+        UpdateExpression="set videoStatus = :r, dashUrl=:d, keyVal=:k, kidVal=:i",
         ExpressionAttributeValues={
             ':r': videoStatus,
             ':d': dashUri,
+            ':k': keyVal,
+            ':i': kidVal,
         },
         ReturnValues="UPDATED_NEW"
     )

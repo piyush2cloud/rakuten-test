@@ -14,6 +14,7 @@ import uuid
 
 def handler(event, context):
     try:
+        event["body"]=json.loads(event["body"])
         input_content_id = getParamsValue('input_content_id', event)
         key = getParamsValue('key', event)
         kid = getParamsValue('kid', event)
@@ -26,7 +27,7 @@ def handler(event, context):
             packagingId=str(uuid.uuid1())
             #Media Package Write 
             videoHelper.writeMediaPackagingData(input_content_id, packagingId, "ENCODE_STARTED")
-        
+            #Creating a SQS Object which needs to pushed to amazon SQS. Later to be read by encoder instance
             sqsEventObject = {
                 'videoPath': videoPath,
                 'key': key,
@@ -34,7 +35,6 @@ def handler(event, context):
                 'packagingId': packagingId,
                 'videoId' : input_content_id
             }
-        
             videoHelper.send_sqs_message(sqsEventObject)
     except Exception as e:
         return responseBuilder.buildResponse(500, json.dumps({'error':str(e)}))
@@ -44,5 +44,4 @@ def handler(event, context):
     }))
 
 def getParamsValue(keyName, event):
-    event["body"]=json.loads(event["body"])
     return event["body"][keyName]
