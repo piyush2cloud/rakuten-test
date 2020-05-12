@@ -16,8 +16,9 @@ def handler(event, context):
     event["body"]=json.loads(event["body"])
     packagingId=event["body"]["packagingId"]
     videoStatus=event["body"]["videoStatus"]
+    dashUrl=event["body"]["dashUrl"]
     try:
-        videoHelper.updateMediaPackagingData(packagingId, videoStatus)
+        videoHelper.updateMediaPackagingData(packagingId, videoStatus, dashUrl)
     except Exception as e:
         return responseBuilder.buildResponse(500, json.dumps({'error':str(e)}))
     return responseBuilder.buildResponse(200, json.dumps({"message":"success"}))

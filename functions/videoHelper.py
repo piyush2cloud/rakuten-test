@@ -19,7 +19,7 @@ def writeMediaPackagingData(videoId, packageId, videoStatus):
     table.put_item(Item= {'packageId': packageId ,'videoId': videoId, 'videoStatus': 'ENCODE_STARTED'})
 
 # Read Data From Dynamo DB
-def readVideoData(keyName,keyValue,tableName):
+def readVideoData(keyName, keyValue, tableName):
     client = boto3.resource('dynamodb')
     table = client.Table(tableName)
     response = table.get_item(
@@ -31,16 +31,17 @@ def readVideoData(keyName,keyValue,tableName):
     return response['Item']
 
 # Updating Video Status Data into Dynamo DB
-def updateMediaPackagingData(packageId, videoStatus):
+def updateMediaPackagingData(packageId, videoStatus, dashUri):
     dbClient = boto3.resource('dynamodb')
     table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
     response = table.update_item(
         Key={
             'packageId': packageId
         },
-        UpdateExpression="set videoStatus = :r",
+        UpdateExpression="set videoStatus = :r, dashUrl=:d",
         ExpressionAttributeValues={
             ':r': videoStatus,
+            ':d': dashUri,
         },
         ReturnValues="UPDATED_NEW"
     )

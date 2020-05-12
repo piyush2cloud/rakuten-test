@@ -39,7 +39,7 @@ functions:
     description: 'Get Video Data'
     events:
       - http:
-          path: /packaged_content/{videoId}
+          path: /packaged_content/{packageId}
           method: get
           cors: true
           private: true
