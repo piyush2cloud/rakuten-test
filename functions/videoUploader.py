@@ -1,3 +1,5 @@
+from database import videoHelper
+from response import responseBuilder
 import json
 import boto3
 import requests
@@ -9,8 +11,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 import time
 import uuid
-import responseBuilder
-import videoHelper
+
 
 def handler(event, context):
     #Converting Event body to Dict Object to Parse

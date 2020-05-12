@@ -1,3 +1,5 @@
+from database import videoHelper
+from response import responseBuilder
 import json
 import boto3
 import requests
@@ -7,8 +9,6 @@ import sys
 import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-import responseBuilder
-import videoHelper
 import time
 import uuid
 
