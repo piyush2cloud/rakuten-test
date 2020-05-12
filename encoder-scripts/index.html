@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Clearkey DRM instantiation example</title>
+
+    <script src="https://reference.dashif.org/dash.js/v3.0.0/dist/dash.all.debug.js"></script>
+    <!--dash.all.min.js should be used in production over dash.all.debug.js
+        Debug files are not compressed or obfuscated making the file size much larger compared with dash.all.min.js-->
+    <!--<script src="http://reference.dashif.org/dash.js/v3.0.0/dist/dash.all.debug.js"></script>-->
+
+    <script  class="code">
+        function init() {
+            const protData = {
+                "org.w3.clearkey": {
+                    "clearkeys": {
+                        "oW5AK5BW43HzbTSKpiu3SQ": "hyN9IKGfWKdAwFaE5pm0qg"
+                    }
+                }
+            };
+            var video,
+                player,
+                url = "https://rakuten-prod-video-data.s3.amazonaws.com/652f8a40-92d6-11ea-b8b4-ea55bfcc997b/rakuten-output/stream.mpd";
+
+            video = document.querySelector("video");
+            player = dashjs.MediaPlayer().create();
+            player.initialize(video, url, true);
+            player.setProtectionData(protData);
+        }
+    </script>
+
+    <style>
+        video {
+            width: 640px;
+            height: 360px;
+        }
+    </style>
+</head>
+<body>
+<div >
+    <video controls="true">
+    </video>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        init();
+    });
+</script>
+</body>
+</html>
