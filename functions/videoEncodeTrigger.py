@@ -1,5 +1,5 @@
-from database import dbHelper
-from response import responseBuilder
+from database.dbHelper import DynamoManager
+from response.responseBuilder import ResponseManager
 import json
 import boto3
 import os
@@ -9,6 +9,10 @@ import time
 import uuid
 
 def handler(event, context):
+    #response handler for returning responses
+    responseHandler = ResponseManager()
+    #Dynamo Db helper functions
+    dbHelper=DynamoManager()
     try:
         event["body"]=json.loads(event["body"])
         packagingId=event["body"]["packagingId"]
@@ -18,5 +22,5 @@ def handler(event, context):
         kidVal=event["body"]["kid"]
         dbHelper.updateMediaPackagingData(packagingId, videoStatus, dashUrl, keyVal, kidVal)
     except Exception as e:
-        return responseBuilder.buildResponse(500, json.dumps({'error':str(e)}))
-    return responseBuilder.buildResponse(200, json.dumps({"message":"success"}))
+        return responseHandler.buildResponse(500, json.dumps({'error':str(e)}))
+    return responseHandler.buildResponse(200, json.dumps({"message":"success"}))

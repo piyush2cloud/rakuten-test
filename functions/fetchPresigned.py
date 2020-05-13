@@ -1,12 +1,11 @@
-from response import responseBuilder
+from response.responseBuilder import ResponseManager
 import json
 import boto3
 import os
-import logging
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 def handler(event, context):
+    #response handler for returning responses
+    responseHandler = ResponseManager()
     try:
         fileKey= getParamsValue('fileKey', event)
         s3 = boto3.client('s3')
@@ -21,8 +20,8 @@ def handler(event, context):
             ExpiresIn=1000
         )
     except Exception as e:
-        return responseBuilder.buildResponse(500, json.dumps({'error':str(e)}))
-    return responseBuilder.buildResponse(200, json.dumps(resp))
+        return responseHandler.buildResponse(500, json.dumps({'error':str(e)}))
+    return responseHandler.buildResponse(200, json.dumps(resp))
 
 def getParamsValue(keyName, event):
     return event["queryStringParameters"][keyName]

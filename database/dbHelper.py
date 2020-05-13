@@ -1,68 +1,61 @@
 import json
 import os
-import logging
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
-# Write Video Data into Dynamo DB
-def writeVideoData(videoId ,filePath, fileName, fileType, bucketName, fileSize):
-    dbClient = boto3.resource('dynamodb')
-    table = dbClient.Table(os.environ["DYNAMO_TABLE_NAME"])
-    print(table.table_status)
-    table.put_item(Item= {'videoId': videoId,'filePath': filePath, 'fileName': fileName, 'fileType': fileType, 'bucketName': bucketName, 'fileSize': fileSize})
+class DynamoManager:
+    def __init__(self):
+        self.dbClient=boto3.resource('dynamodb')
 
-# Write Video Data into Dynamo DB
-def writeMediaPackagingData(videoId, packageId, videoStatus):
-    dbClient = boto3.resource('dynamodb')
-    table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
-    print(table.table_status)
-    table.put_item(Item= {'packageId': packageId ,'videoId': videoId, 'videoStatus': 'ENCODE_STARTED'})
+    # Write Video Data into Dynamo DB
+    def writeVideoData(self , videoId ,filePath, fileName, fileType, bucketName, fileSize):
+        dbClient = self.dbClient
+        table = dbClient.Table(os.environ["DYNAMO_TABLE_NAME"])
+        table.put_item(Item= {'videoId': videoId,'filePath': filePath, 'fileName': fileName, 'fileType': fileType, 'bucketName': bucketName, 'fileSize': fileSize})
 
-# Read Data From Dynamo DB
-def readVideoData(keyName, keyValue, tableName):
-    client = boto3.resource('dynamodb')
-    table = client.Table(tableName)
-    response = table.get_item(
-        Key={
-            keyName : keyValue,
-        }
-    )
-    print(response)
-    return response['Item']
+    # Write Video Data into Dynamo DB
+    def writeMediaPackagingData(self ,videoId, packageId, videoStatus):
+        dbClient = self.dbClient
+        table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
+        table.put_item(Item= {'packageId': packageId ,'videoId': videoId, 'videoStatus': 'ENCODE_STARTED'})
 
-# Updating Video Status Data into Dynamo DB
-def updateMediaPackagingData(packageId, videoStatus, dashUri, keyVal, kidVal):
-    dbClient = boto3.resource('dynamodb')
-    table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
-    response = table.update_item(
-        Key={
-            'packageId': packageId
-        },
-        UpdateExpression="set videoStatus = :r, dashUrl=:d, keyVal=:k, kidVal=:i",
-        ExpressionAttributeValues={
-            ':r': videoStatus,
-            ':d': dashUri,
-            ':k': keyVal,
-            ':i': kidVal,
-        },
-        ReturnValues="UPDATED_NEW"
-    )
-    print(json.dumps(response))
+    # Read Data From Dynamo DB
+    def readVideoData(self ,keyName, keyValue, tableName):
+        dbClient = self.dbClient
+        table = dbClient.Table(tableName)
+        response = table.get_item(
+            Key={
+                keyName : keyValue,
+            }
+        )
+        return response['Item']
 
-#Check Media Package has been sent. If already sent no need to send again.
-def isVideoEncoded(videoId):
-    dbClient = boto3.resource('dynamodb')
-    table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
-    response = table.query(
-        IndexName="videoId-index",
-        KeyConditionExpression=Key('videoId').eq(videoId))
-    if len(response[u'Items']) > 0:
-        return True
-    return False
+    # Updating Video Status Data into Dynamo DB
+    def updateMediaPackagingData(self , packageId, videoStatus, dashUri, keyVal, kidVal):
+        dbClient = self.dbClient
+        table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
+        response = table.update_item(
+            Key={
+                'packageId': packageId
+            },
+            UpdateExpression="set videoStatus = :r, dashUrl=:d, keyVal=:k, kidVal=:i",
+            ExpressionAttributeValues={
+                ':r': videoStatus,
+                ':d': dashUri,
+                ':k': keyVal,
+                ':i': kidVal,
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+        print(json.dumps(response))
 
-def send_sqs_message(msg_body):
-    # Send the SQS message
-    sqs_client = boto3.client('sqs')    
-    sqs_queue_url = sqs_client.get_queue_url(QueueName=os.environ["SQS_NAME"])['QueueUrl'] 
-    msg = sqs_client.send_message(QueueUrl=sqs_queue_url,MessageBody=json.dumps(msg_body)) 
-    return msg
+    #Check Media Package has been sent. If already sent no need to send again.
+    def isVideoEncoded(self ,videoId):
+        dbClient = self.dbClient
+        table = dbClient.Table(os.environ["DYNAMO_TABLE_ENCODER_NAME"])
+        response = table.query(
+            IndexName="videoId-index",
+            KeyConditionExpression=Key('videoId').eq(videoId))
+        if len(response[u'Items']) > 0:
+            return True
+        return False
