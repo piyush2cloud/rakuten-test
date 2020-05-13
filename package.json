@@ -8,8 +8,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "appdirectory": "^0.1.0",
     "aws-sdk": "^2.464.0",
     "graceful-fs": "^4.2.2",
+    "jszip": "^3.4.0",
     "serverless-python-requirements": "^4.3.0"
   },
   "devDependencies": {},

@@ -1,10 +1,8 @@
-from database import videoHelper
+from database import dbHelper
 from response import responseBuilder
 import json
 import boto3
-import requests
 import os
-import base64
 import sys
 import logging
 logger = logging.getLogger()
@@ -19,14 +17,14 @@ def handler(event, context):
         key = getParamsValue('key', event)
         kid = getParamsValue('kid', event)
         #Check Media Package has been sent. If already sent no need to send again.
-        if videoHelper.isVideoEncoded(input_content_id):
+        if dbHelper.isVideoEncoded(input_content_id):
             return responseBuilder.buildResponse(404, json.dumps({'message': 'Already Encoding Request Sent or in progress'}))
         else:
-            videoMetadata=videoHelper.readVideoData('videoId', input_content_id, os.environ["DYNAMO_TABLE_NAME"])
+            videoMetadata=dbHelper.readVideoData('videoId', input_content_id, os.environ["DYNAMO_TABLE_NAME"])
             videoPath=videoMetadata["filePath"]
             packagingId=str(uuid.uuid1())
             #Media Package Write 
-            videoHelper.writeMediaPackagingData(input_content_id, packagingId, "ENCODE_STARTED")
+            dbHelper.writeMediaPackagingData(input_content_id, packagingId, "ENCODE_STARTED")
             #Creating a SQS Object which needs to pushed to amazon SQS. Later to be read by encoder instance
             sqsEventObject = {
                 'videoPath': videoPath,
@@ -35,7 +33,7 @@ def handler(event, context):
                 'packagingId': packagingId,
                 'videoId' : input_content_id
             }
-            videoHelper.send_sqs_message(sqsEventObject)
+            dbHelper.send_sqs_message(sqsEventObject)
     except Exception as e:
         return responseBuilder.buildResponse(500, json.dumps({'error':str(e)}))
 

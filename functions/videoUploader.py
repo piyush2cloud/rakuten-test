@@ -1,8 +1,7 @@
-from database import videoHelper
+from database import dbHelper
 from response import responseBuilder
 import json
 import boto3
-import requests
 import os
 import base64
 import sys
@@ -26,7 +25,7 @@ def handler(event, context):
         #Generating Video ID which will be associated with the content uploaded by the user.
         videoId=str(uuid.uuid1())   
         #write videodata to Dynamo DB
-        videoHelper.writeVideoData(videoId, s3FilePath, fileName, fileType, BUCKET_NAME, fileSize)
+        dbHelper.writeVideoData(videoId, s3FilePath, fileName, fileType, BUCKET_NAME, fileSize)
         outputObject = {
             "videoId":videoId
         }
