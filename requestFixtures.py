@@ -17,7 +17,7 @@ def getVideoDataInfo():
             "x-api-key": 'rakuten-prod-key-12345'
         },
         "pathParameters": {
-            "packageId": "8ce41ff6-944d-11ea-ae9c-8a9eb3be82be"
+            "packageId": "60e057f6-94ef-11ea-8e67-4a66e9734edf"
         }
     }
 
